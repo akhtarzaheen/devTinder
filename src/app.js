@@ -8,7 +8,8 @@ app.use('/test',(req,res) => {
 
 
 
-app.post("/user",(req,res) => {
+app.post("/user/:userId",(req,res) => {
+    console.log(req.params)
     res.send({firstName:"Zaheen",lastName:"Akhtar"})
 })
 
@@ -16,7 +17,8 @@ app.get('/user',(req,res) => {
     res.send('fetched user details')
 });
 
-app.delete('/user',(req,res) => {
+app.delete('/user/:userId',(req,res) => {
+    console.log(req.params)
     res.send('delete user')
 })
 
