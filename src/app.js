@@ -2,6 +2,8 @@ const express = require("express");
 
 const app = express();
 
+const  {authAdmin,authUser} = require("./utils/middleware/auth");
+
 // app.use('/test',(req,res) => {
 //     res.send('response for /test')
 // })
@@ -34,18 +36,39 @@ const app = express();
 //     res.send('second');
 // })
 
-app.use('/user',(req,res,next) => {
-    console.log('1st route handler');
-    next();
-},(req,res,next) => {
-    console.log('2nd route handler');
-    next();
-},(req,res,next) => {
-    console.log('3rd route handler');
-    next();
-},(req,res,next) => {
-    console.log('4th route handler');
-    res.send('4th route handler');
+// app.use('/user',(req,res,next) => {
+//     console.log('1st route handler');
+//     next();
+// },(req,res,next) => {
+//     console.log('2nd route handler');
+//     next();
+// },(req,res,next) => {
+//     console.log('3rd route handler');
+//     next();
+// },(req,res,next) => {
+//     console.log('4th route handler');
+//     res.send('4th route handler');
+// })
+
+// Writing auth middleware
+
+app.get("/login",(req,res,next) => {
+    res.send("login successfully!");
+})
+
+app.use("/admin",authAdmin);
+app.use("/user",authUser);
+
+app.get("/admin/getCustomerDetails",(req,res,next) => {
+    res.send("Fetched Admin details successfully!");
+});
+
+app.post("/admin/deleteCustomer",(req,res,next)=>{
+    res.send("deleted customer!");
+});
+
+app.get("/user/getUserDetails",(req,res) => {
+    res.send("Fetched User Details!");
 })
 
 app.listen(4000);
