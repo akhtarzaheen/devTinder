@@ -1,74 +1,29 @@
 const express = require("express");
+require("./config/db");
+
+const {User}  = require("./models/user");
 
 const app = express();
 
-const  {authAdmin,authUser} = require("./utils/middleware/auth");
+const {dbConnect} = require("./config/db");
 
-// app.use('/test',(req,res) => {
-//     res.send('response for /test')
-// })
+app.use(express.json());
 
-
-
-// app.post("/user/:userId",(req,res) => {
-//     console.log(req.params)
-//     res.send({firstName:"Zaheen",lastName:"Akhtar"})
-// })
-
-// app.get('/user',(req,res) => {
-//     res.send('fetched user details')
-// });
-
-// app.delete('/user/:userId',(req,res) => {
-//     console.log(req.params)
-//     res.send('delete user')
-// })
-
-// app.use("/",(req,res) => {
-//     res.send('response for /')
-// })
-
-// app.use('/user',(req,res) => {
-//     console.log('first handler');
-//     res.send('first');
-// },(req,res) => {
-//     console.log('second handler');
-//     res.send('second');
-// })
-
-// app.use('/user',(req,res,next) => {
-//     console.log('1st route handler');
-//     next();
-// },(req,res,next) => {
-//     console.log('2nd route handler');
-//     next();
-// },(req,res,next) => {
-//     console.log('3rd route handler');
-//     next();
-// },(req,res,next) => {
-//     console.log('4th route handler');
-//     res.send('4th route handler');
-// })
-
-// Writing auth middleware
-
-app.get("/login",(req,res,next) => {
-    res.send("login successfully!");
+app.post("/signup",async (req,res) => {
+    const user = new User(req.body);
+    try{
+    await user.save();
+    res.send("User added successfully!")
+    }catch(e){
+        res.status(400).send(e.message);
+    }
 })
 
-app.use("/admin",authAdmin);
-app.use("/user",authUser);
-
-app.get("/admin/getCustomerDetails",(req,res,next) => {
-    res.send("Fetched Admin details successfully!");
+dbConnect().then(()=> { 
+    console.log('connection with clustered successfully!');
+    app.listen(4000,() => {
+        console.log('Server running on port 4000');
+    })
+}).catch(() => {
+    console.log('connection not established');
 });
-
-app.post("/admin/deleteCustomer",(req,res,next)=>{
-    res.send("deleted customer!");
-});
-
-app.get("/user/getUserDetails",(req,res) => {
-    res.send("Fetched User Details!");
-})
-
-app.listen(4000);
