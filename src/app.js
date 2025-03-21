@@ -6,6 +6,7 @@ const {User}  = require("./models/user");
 const app = express();
 
 const {dbConnect} = require("./config/db");
+const req = require("express/lib/request");
 
 app.use(express.json());
 
@@ -31,10 +32,11 @@ app.post("/user",async (req,res) => {
             res.status(404).send("User not found!");
         }
     }catch(e){
-        res.status(401).send("something went wrong!");
+        res.status(400).send(e.message);
     }
 });
 
+// Fetch all users from database
 app.get('/feed',async (req,res) => { 
     try{
         let users = await User.find({});
@@ -44,7 +46,53 @@ app.get('/feed',async (req,res) => {
             res.status(404).send('Users not found!')
         }
     }catch(e){
-        res.status(401).send("something went wrong!");
+        res.status(400).send(e.message);
+    }
+})
+
+// Delete user
+app.delete("/user",async (req,res) => {
+    let userId = req.body.userId;
+    try{
+        await User.findByIdAndDelete(userId);
+        res.send('User deleted successfully!');
+    }catch(e){
+        res.status(400).send(e.message);
+    }
+});
+
+// Update User database with id
+app.patch("/user",async (req,res) => {
+    let data = req.body;
+    let userId = req.body.userId;
+    let ALLOWED_DATA = [
+        "userId",
+        "firstName",
+        "lastName",
+        "emailId",
+        "password",
+        "age",
+        "gender",
+        "skills"
+    ]
+   
+    try{
+        let isDataAllowed = Object.keys(data).every((key) => {
+            if(ALLOWED_DATA.includes(key)){
+                return true
+            }
+            return false;
+        })
+        if(!isDataAllowed){
+            throw new Error('Data insertion not allowed');
+        }
+        if(req.body.skills.length>3){
+            throw new Error('skills can not be more than 3');
+        }
+        await User.findByIdAndUpdate(userId,data);
+        res.send('User updated successfully!');
+    }catch(e){
+        res.status(400).send(e.message);
     }
 })
 
