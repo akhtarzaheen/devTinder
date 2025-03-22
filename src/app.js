@@ -7,16 +7,23 @@ const app = express();
 
 const {dbConnect} = require("./config/db");
 const req = require("express/lib/request");
+const { validateCreds } = require("./utils/utils");
 
 app.use(express.json());
 
 app.post("/signup",async (req,res) => {
     const user = new User(req.body);
+    let {firstName,emailId,password} = req.body;
     try{
+        validateCreds({
+            firstName,
+            emailId,
+            password
+        });
     await user.save();
     res.send("User added successfully!")
     }catch(e){
-        res.status(400).send(e.message);
+        res.status(400).send('ERROR : '+e.message);
     }
 });
 
