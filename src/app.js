@@ -5,6 +5,8 @@ const {User}  = require("./models/user");
 
 const app = express();
 
+const bcrypt = require("bcrypt");
+
 const {dbConnect} = require("./config/db");
 const req = require("express/lib/request");
 const { validateCreds } = require("./utils/utils");
@@ -12,18 +14,39 @@ const { validateCreds } = require("./utils/utils");
 app.use(express.json());
 
 app.post("/signup",async (req,res) => {
-    const user = new User(req.body);
     let {firstName,emailId,password} = req.body;
+    let hashPassword = await bcrypt.hashSync(password,10);
+    req.body.password = hashPassword;
     try{
         validateCreds({
             firstName,
             emailId,
             password
         });
-    await user.save();
-    res.send("User added successfully!")
+        const user = new User(req.body);
+        await user.save();
+        res.send("User added successfully!")
     }catch(e){
         res.status(400).send('ERROR : '+e.message);
+    }
+});
+
+app.post("/login",async (req,res) => {
+    let {emailId,password} = req.body;
+    try{
+        const user = await User.findOne({emailId});
+        if(user){
+            let isPasswordValid = await bcrypt.compare(password,user.password);
+            if(isPasswordValid){
+                res.send("User logged in successfully!");
+            }else{
+                throw new Error("Invalid credentials!");
+            }
+        }else{
+            throw new Error("Invalid credentials!");
+        }
+    }catch(e){
+        res.status(400).send(e.message);
     }
 });
 
