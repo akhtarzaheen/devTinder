@@ -7,11 +7,16 @@ const app = express();
 
 const bcrypt = require("bcrypt");
 
+const jwt = require("jsonwebtoken");
+
 const {dbConnect} = require("./config/db");
 const req = require("express/lib/request");
 const { validateCreds } = require("./utils/utils");
 
+const cookieParser = require("cookie-parser");
+
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup",async (req,res) => {
     let {firstName,emailId,password} = req.body;
@@ -38,12 +43,35 @@ app.post("/login",async (req,res) => {
         if(user){
             let isPasswordValid = await bcrypt.compare(password,user.password);
             if(isPasswordValid){
+                let token = await jwt.sign({id:user._id},"Zaheen@2021");
+                res.cookie('token',token);
                 res.send("User logged in successfully!");
             }else{
                 throw new Error("Invalid credentials!");
             }
         }else{
             throw new Error("Invalid credentials!");
+        }
+    }catch(e){
+        res.status(400).send(e.message);
+    }
+});
+
+// API to fetch profile details
+app.get("/profile",async (req,res) => {
+    try{
+        let token = req.cookies.token;
+        if(token){
+            let decoded = jwt.verify(token,"Zaheen@2021");
+            console.log('decoded=>',decoded)
+            const user = await User.findOne({_id:decoded.id});
+            if(user){
+                res.send(user);
+            }else{
+                throw new Error("User not found!");
+            }
+        }else{
+            throw new Error("Unauthorized");
         }
     }catch(e){
         res.status(400).send(e.message);
