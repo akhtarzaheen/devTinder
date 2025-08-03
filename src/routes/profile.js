@@ -1,5 +1,6 @@
 const express = require("express");
 const { authUser } = require("../middleware/auth");
+const { validateFields } = require("../utils/utils");
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view",authUser,async (req,res) => {
@@ -9,5 +10,24 @@ profileRouter.get("/profile/view",authUser,async (req,res) => {
         res.status(400).send(e.message);
     }
 });
+
+profileRouter.patch('/profile/edit',authUser,async (req,res) => {
+    try{
+        
+        if(!validateFields(req)){
+            res.status(400).send("Request not allowed!");
+        }else{
+            let loggedInUser = req.user;
+            Object.keys(req.body).forEach((item) => loggedInUser[item] = req.body[item]);
+            await loggedInUser.save();
+
+            res.status(200).send({msg:"Profile updated successfully!",
+                data:loggedInUser
+            });
+        }
+    }catch(e){
+        res.status(400).send(e.message);
+    }
+})
 
 module.exports = profileRouter;

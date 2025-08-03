@@ -12,6 +12,12 @@ const validateCreds = ({firstName,emailId,password}) => {
     }
 }
 
+const validateFields = (req) => {
+    let allowedFields = ["firstName","lastName","emailId","photoURL","about","age","gender","skills"];
+    return Object.keys(req.body).every(field => allowedFields.includes(field));
+}
+
 module.exports = {
-    validateCreds
+    validateCreds,
+    validateFields
 }
