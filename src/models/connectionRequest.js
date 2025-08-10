@@ -4,6 +4,7 @@ const connectionRequestSchema = new mongoose.Schema({
     fromUserId:{
         type:mongoose.Schema.ObjectId,
         required:true,
+        ref:"User" //reference to the user collection
     },
     toUserId:{
         type: mongoose.Schema.ObjectId,
@@ -13,7 +14,7 @@ const connectionRequestSchema = new mongoose.Schema({
         type:String,
         required:true,
         enum:{
-            values:["ignored","interested"],
+            values:["ignored","interested","accepted","rejected"],
             message:`{VALUE} is not a valid status!`
         }
     }

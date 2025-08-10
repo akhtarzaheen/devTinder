@@ -3,8 +3,9 @@ const { authUser } = require("../middleware/auth");
 const requestRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
+const { default: mongoose } = require("mongoose");
 
-requestRouter.post('/request/connection/:status/:userId',authUser,(async (req,res) => {
+requestRouter.post('/request/connection/send/:status/:userId',authUser,(async (req,res) => {
    try{
     let loggedInUser = req.user;
     let {status,userId} = req.params;
@@ -36,5 +37,29 @@ requestRouter.post('/request/connection/:status/:userId',authUser,(async (req,re
     res.status(400).send(e.message);
    } 
 }));
+
+requestRouter.post('/request/connection/review/:status/:requestId',authUser,(async (req, res) => {
+    try{
+        let loggedInUser = req.user;
+        let {status, requestId} = req.params;
+        let allowedStatus = ["accepted","rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).send({message:"Status not allowed!"});
+        }
+        let connectionRequest = await ConnectionRequest.findOne({
+        fromUserId:requestId,
+          toUserId:loggedInUser._id,
+          status:"interested",
+        });
+        if(!connectionRequest){
+            return res.status(404).send({"message":"Connection request not found!"});
+        }
+        connectionRequest.status = status;
+        await connectionRequest.save();
+         res.status(200).send({message:`Connection request ${status} successfully!`,data:connectionRequest});
+    }catch(error){
+        res.status(400).send(error.message);
+    }
+}))
 
 module.exports = requestRouter;
