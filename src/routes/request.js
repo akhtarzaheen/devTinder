@@ -47,7 +47,7 @@ requestRouter.post('/request/connection/review/:status/:requestId',authUser,(asy
             return res.status(400).send({message:"Status not allowed!"});
         }
         let connectionRequest = await ConnectionRequest.findOne({
-        fromUserId:requestId,
+        _id:requestId,
           toUserId:loggedInUser._id,
           status:"interested",
         });
