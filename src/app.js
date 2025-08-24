@@ -2,11 +2,19 @@ const express = require("express");
 require("./config/db");
 
 const app = express();
+const cors = require("cors");
 
 const {dbConnect} = require("./config/db");
 const req = require("express/lib/request");
 
 const cookieParser = require("cookie-parser");
+app.use(cors({
+  origin: "http://localhost:5173",   // no trailing slash
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+app.options("*", cors()); 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile")
 const requestRouter = require("./routes/request");
