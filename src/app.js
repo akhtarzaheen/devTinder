@@ -8,13 +8,17 @@ const {dbConnect} = require("./config/db");
 const req = require("express/lib/request");
 
 const cookieParser = require("cookie-parser");
-app.use(cors({
-  origin: "http://localhost:5173",   // no trailing slash
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+
+const corsOptions = {
+  origin: "http://localhost:5173",  
   credentials: true,
-  optionsSuccessStatus: 200
-}));
-app.options("*", cors()); 
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
+
+
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile")
 const requestRouter = require("./routes/request");
@@ -36,3 +40,4 @@ dbConnect().then(()=> {
 }).catch(() => {
     console.log('connection not established');
 });
+
