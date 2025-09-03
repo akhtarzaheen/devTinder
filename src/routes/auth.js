@@ -32,11 +32,7 @@ authRouter.post("/login",async (req,res) => {
             let isPasswordValid = await user.verifyPassword(password);
             if(isPasswordValid){
                 let token = await user.getJWT();
-                res.cookie("token", token, {
-  httpOnly: true,
-  secure: false,       // use true in production with HTTPS
-  sameSite: "none"     // ✅ this is the missing piece for Chrome
-});
+                res.cookie("token", token);
                 res.send({status:200,message:"User logged in successfully!",data:user});
             }else{
                 throw new Error("Invalid credentials!");
